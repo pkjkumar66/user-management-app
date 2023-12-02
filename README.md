@@ -31,8 +31,8 @@ I was facing some compilation issue while running through cmd line; java21 was n
 
 ### Installation
 
-1. Clone the repository: `git clone https://github.com/pkjkumar66/techolution-app.git`
-2. Navigate to the project directory: `cd techolution-app`
+1. Clone the repository: `git clone https://github.com/pkjkumar66/user-management-app.git`
+2. Navigate to the project directory: `cd user-management-app`
 3. Build the project: `mvn clean install`
 4. Run the application: `mvn spring-boot:run`
 
