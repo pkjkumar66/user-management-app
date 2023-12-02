@@ -4,7 +4,7 @@ This is a sample Spring Boot application for user management, including CRUD ope
 
 ```bash
 
-setup by step done in [this repository](https://github.com/pkjkumar66/techolution-app).
+setup by step done in this repo: https://github.com/pkjkumar66/techolution-app
 I was facing some compilation issue while running through cmd line; java21 was not compactible with maven 3.2.0
 
 ```
