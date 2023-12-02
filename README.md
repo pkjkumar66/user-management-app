@@ -4,8 +4,8 @@ This is a sample Spring Boot application for user management, including CRUD ope
 
 ```bash
 
-setup by step done in this repo: https://github.com/pkjkumar66/techolution-app
-I was facing some compilation issue while running through cmd line; java21 was not compactible with maven 3.2.0
+- setup by step done in this repo: https://github.com/pkjkumar66/techolution-app
+- I was facing some compilation issue while running through cmd line; java21 was not compactible with maven 3.2.0
 
 ```
 
@@ -14,6 +14,7 @@ I was facing some compilation issue while running through cmd line; java21 was n
 - [Getting Started](#getting-started)
 - [Features](#features)
 - [Directory Structure](#directory)
+- [Postman Collection](#postman-collection)
 - [Endpoints](#endpoints)
 - [Dependencies](#dependencies)
 - [Configuration](#configuration)
@@ -31,15 +32,64 @@ I was facing some compilation issue while running through cmd line; java21 was n
 
 ### Installation
 
-1. Clone the repository: `git clone https://github.com/pkjkumar66/user-management-app.git`
-2. Navigate to the project directory: `cd user-management-app`
-3. Build the project: `mvn clean install`
-4. Run the application: `mvn spring-boot:run`
+#### Option 1: Maven
 
-or
+1. Clone the repository:
 
-1. Create jar: `./mvnw package`
-2. Run the application: `java -jar app-0.0.1-SNAPSHOT.jar` (how to get it: got to target folder and do ls *.jar)
+    ```bash
+    git clone https://github.com/pkjkumar66/user-management-app.git
+    ```
+
+2. Navigate to the project directory:
+
+    ```bash
+    cd user-management-app
+    ```
+
+3. Build the project:
+
+    ```bash
+    mvn clean install
+    ```
+
+4. Run the application:
+
+    ```bash
+    mvn spring-boot:run
+    ```
+
+#### Option 2: JAR File
+
+1. Create JAR file:
+
+    ```bash
+    ./mvnw package
+    ```
+
+2. Run the application:
+
+    ```bash
+    java -jar target/app-0.0.1-SNAPSHOT.jar
+    ```
+
+#### Option 3: Docker
+
+#### Pull Docker Image
+
+1. Pull the Docker image from DockerHub:
+
+    ```bash
+    docker pull pkjkumar66/user-management-app:latest
+    ```
+
+#### Run App using Docker Container
+
+1. Download Docker from [Docker website](https://www.docker.com/products/docker-desktop/).
+2. Run the user-management-app on your local machine using a Docker container:
+
+    ```bash
+    docker run -p 8080:8080 pkjkumar66/user-management-app:latest
+    ```
 
 ## Directory Structure
 
@@ -74,11 +124,12 @@ src
 - Global exception handling for meaningful error responses.
 - Custom exceptions like ResourceNotFoundException, AccessDeniedException.
 
-## Endpoints
 
-### Postman Collection
+
+## Postman Collection
 
 Explore and test the APIs using the provided Postman collection.
+
 [Postman Collection](https://red-water-686645.postman.co/workspace/My-Workspace~bfb5c795-ecc4-4e23-8ad9-7c7fe4b847b4/collection/25669291-214b1db6-a12c-49ec-bbbe-7f43f2ca1cee?action=share&creator=25669291)
 
 ### User Roles: Authentication and Authorization
@@ -88,7 +139,7 @@ The application defines three user roles: EMPLOYEE, MANAGER, and ADMIN. Each rol
 - MANAGER: Read and write access to user-related endpoints.
 - ADMIN: Full access to user-related endpoints.
 
-## APIs
+## Endpoints
 
 ### Add user
 
