@@ -3,8 +3,10 @@
 This is a sample Spring Boot application for user management, including CRUD operations on the User entity. It incorporates Spring Data JPA for data persistence and Spring Security for basic authentication. The application follows RESTful conventions and includes integration tests using MockMvc.
 
 ```bash
-- setup by step done in this repo: https://github.com/pkjkumar66/techolution-app
-- I was facing some compilation issue while running through cmd line; java21 was not compactible with maven 3.2.0
+
+setup by step done in this repo: https://github.com/pkjkumar66/techolution-app
+I was facing some compilation issue while running through cmd line; java21 was not compactible with maven 3.2.0
+
 ```
 
 ## Table of Contents
