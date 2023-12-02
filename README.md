@@ -140,6 +140,7 @@ The application defines three user roles: EMPLOYEE, MANAGER, and ADMIN. Each rol
 - ADMIN: Full access to user-related endpoints.
 
 Do authentication and authorization before using any APIs.
+
     ```bash
         username: admin
         password: test123
