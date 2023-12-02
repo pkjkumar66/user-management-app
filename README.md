@@ -1,7 +1,11 @@
 # user-management-app
 
-The objective of this assignment is to create a secure RESTful API using Spring Boot. We will implement authentication
-and authorization mechanisms using Spring Security and interact with a database using Spring Data JPA.
+This is a sample Spring Boot application for user management, including CRUD operations on the User entity. It incorporates Spring Data JPA for data persistence and Spring Security for basic authentication. The application follows RESTful conventions and includes integration tests using MockMvc.
+
+```bash
+- setup by step done in this repo: https://github.com/pkjkumar66/techolution-app
+- I was facing some compilation issue while running through cmd line; java21 was not compactible with maven 3.2.0
+```
 
 ## Table of Contents
 
@@ -41,7 +45,7 @@ or
 src
 |-- main
 |   |-- java
-|       |-- com.example.techolution
+|       |-- com.example.app
 |           |-- controller
 |           |-- dto
 |           |-- entity
@@ -53,7 +57,7 @@ src
 |           |-- application.properties
 |-- test
     |-- java
-        |-- com.example.techolution
+        |-- com.example.app
             |-- controller
 ```
 
