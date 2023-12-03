@@ -74,6 +74,8 @@ This is a sample Spring Boot application for user management, including CRUD ope
 
 #### Option 3: Docker
 
+Download Docker from [Docker website](https://www.docker.com/products/docker-desktop/).
+
 #### Pull Docker Image
 
 1. Pull the Docker image from DockerHub:
@@ -84,8 +86,7 @@ This is a sample Spring Boot application for user management, including CRUD ope
 
 #### Run App using Docker Container
 
-1. Download Docker from [Docker website](https://www.docker.com/products/docker-desktop/).
-2. Run the user-management-app on your local machine using a Docker container:
+1. Run the user-management-app on your local machine using a Docker container:
 
     ```bash
     docker run -p 8080:8080 pkjkumar66/user-management-app:latest
