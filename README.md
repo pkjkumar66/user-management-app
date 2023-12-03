@@ -6,7 +6,7 @@ This is a sample Spring Boot application for user management, including CRUD ope
 - step by step done in the below repo
 -  I was facing some compilation issue while running through cmd line that's why created a new project using techolution-app; java21 was not compactible with maven 3.2.0
 ```
-- [repo](https://github.com/pkjkumar66/techolution-app) as task number given in the assignment
+- [assignment solution](https://github.com/pkjkumar66/techolution-app) as task number given in the assignment
 
 ## Table of Contents
 
