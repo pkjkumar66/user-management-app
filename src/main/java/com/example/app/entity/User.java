@@ -1,5 +1,6 @@
 package com.example.app.entity;
 
+import com.example.app.util.PasswordUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,14 +22,17 @@ public class User {
     private String userName;
 
     @Column(name = "password")
-    private String password;
+    private String passwordHash;
 
-    public User(String userName, String password) {
-        this.userName = userName;
-        this.password = password;
-    }
+    @Column(name = "salt")
+    private String salt;
 
     public User() {
+    }
+
+    public User(String userName, String password, PasswordUtils passwordUtils) {
+        this.userName = userName;
+        setPasswordHash(password, passwordUtils);
     }
 
     public void setId(Long id) {
@@ -47,11 +51,16 @@ public class User {
         this.userName = userName;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setPasswordHash(String password, PasswordUtils passwordUtils) {
+        this.salt = passwordUtils.generateSalt();
+        this.passwordHash = passwordUtils.hashPassword(password, this.salt);
     }
 }

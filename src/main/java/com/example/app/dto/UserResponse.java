@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class UserResponse {
     private Long id;
     private String userName;
-    private String password;
     private UserErrorResponse error;
 }

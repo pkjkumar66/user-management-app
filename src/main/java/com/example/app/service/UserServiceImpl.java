@@ -6,9 +6,11 @@ import com.example.app.dto.UserResponse;
 import com.example.app.entity.User;
 import com.example.app.exception.AccessDeniedException;
 import com.example.app.repository.UserRepository;
+import com.example.app.util.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -21,10 +23,12 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,7 +38,6 @@ public class UserServiceImpl implements UserService {
                 .map(user -> UserResponse.builder()
                         .id(user.getId())
                         .userName(user.getUserName())
-                        .password(user.getPassword())
                         .build())
                 .collect(Collectors.toList());
         return response;
@@ -48,7 +51,6 @@ public class UserServiceImpl implements UserService {
             User existingUser = user.get();
             response.setId(existingUser.getId());
             response.setUserName(existingUser.getUserName());
-            response.setPassword(existingUser.getPassword());
         } else {
             UserErrorResponse error = UserErrorResponse.builder()
                     .errorCode("404")
@@ -69,11 +71,11 @@ public class UserServiceImpl implements UserService {
             Assert.notNull(userDto.getUserName(), "userName can't be null");
             Assert.notNull(userDto.getPassword(), "password can't be null");
 
-            User user = new User(userDto.getUserName(), userDto.getPassword());
+            PasswordUtils passwordUtils = new PasswordUtils(this.passwordEncoder);
+            User user = new User(userDto.getUserName(), userDto.getPassword(), passwordUtils);
             User savedUser = userRepository.save(user);
             response.setId(savedUser.getId());
             response.setUserName(savedUser.getUserName());
-            response.setPassword(savedUser.getPassword());
         } catch (Exception e) {
             UserErrorResponse error = UserErrorResponse.builder()
                     .errorMessage(e.getMessage())
@@ -96,13 +98,13 @@ public class UserServiceImpl implements UserService {
                 }
 
                 if (Objects.nonNull(userDto) && userDto.getPassword().length() > 0) {
-                    existingUser.setPassword(userDto.getPassword());
+                    PasswordUtils passwordUtils = new PasswordUtils(this.passwordEncoder);
+                    existingUser.setPasswordHash(userDto.getPassword(), passwordUtils);
                 }
 
                 User savedUser = userRepository.save(existingUser);
                 response.setId(savedUser.getId());
                 response.setUserName(savedUser.getUserName());
-                response.setPassword(savedUser.getPassword());
             } else {
                 UserErrorResponse error = UserErrorResponse.builder()
                         .errorCode("404")
