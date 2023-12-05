@@ -1,11 +1,11 @@
 package com.example.app.service;
 
 import com.example.app.dto.UserDto;
-import com.example.app.dto.UserErrorResponse;
 import com.example.app.dto.UserResponse;
 import com.example.app.entity.User;
 import com.example.app.exception.AccessDeniedException;
 import com.example.app.exception.UserNotFoundException;
+import com.example.app.mapper.UserMapper;
 import com.example.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,9 +25,11 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserResponse> getAllUsers() {
+        checkAuthorizationForRole("EMPLOYEE", "MANAGER", "ADMIN");
         List<User> users = userRepository.findAll();
         return users.stream()
                 .filter(Objects::nonNull)
@@ -39,6 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long userId) {
+        checkAuthorizationForRole("EMPLOYEE", "MANAGER", "ADMIN");
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
@@ -50,61 +54,52 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse addUser(UserDto userDto) {
-        UserResponse response = UserResponse.builder().build();
-        try {
-            checkAuthorizationForRole("MANAGER", "ADMIN");
-            Assert.notNull(userDto, "userDto can't be null");
-            Assert.notNull(userDto.getUserName(), "userName can't be null");
-            Assert.notNull(userDto.getPassword(), "password can't be null");
+        checkAuthorizationForRole("MANAGER", "ADMIN");
+        validateUserDto(userDto);
 
-            User user = new User(userDto.getUserName(), userDto.getPassword());
-            User savedUser = userRepository.save(user);
-            response.setId(savedUser.getId());
-            response.setUserName(savedUser.getUserName());
-            response.setPassword(savedUser.getPassword());
-        } catch (Exception e) {
-            UserErrorResponse error = UserErrorResponse.builder()
-                    .errorMessage(e.getMessage())
-                    .build();
-            response.setError(error);
-        }
-        return response;
+        User user = userMapper.userDtoToUser(userDto);
+        User savedUser = userRepository.save(user);
+
+        return UserResponse.builder()
+                .id(savedUser.getId())
+                .userName(savedUser.getUserName())
+                .build();
 
     }
 
+    private void validateUserDto(UserDto userDto) {
+        Assert.notNull(userDto, "userDto can't be null");
+        Assert.notNull(userDto.getUserName(), "userName can't be null");
+        Assert.notNull(userDto.getPassword(), "password can't be null");
+    }
+
     public UserResponse updateUser(Long userId, UserDto userDto) {
-        UserResponse response = UserResponse.builder().build();
-        try {
-            checkAuthorizationForRole("MANAGER", "ADMIN");
-            Optional<User> optionalUser = userRepository.findById(userId);
-            if (optionalUser.isPresent()) {
-                User existingUser = optionalUser.get();
-                if (Objects.nonNull(userDto) && userDto.getUserName().length() > 0) {
-                    existingUser.setUserName(userDto.getUserName());
-                }
+        checkAuthorizationForRole("MANAGER", "ADMIN");
+        Assert.notNull(userDto, "userDto can't be null");
 
-                if (Objects.nonNull(userDto) && userDto.getPassword().length() > 0) {
-                    existingUser.setPassword(userDto.getPassword());
-                }
+        Optional<User> optionalUser = userRepository.findById(userId);
 
-                User savedUser = userRepository.save(existingUser);
-                response.setId(savedUser.getId());
-                response.setUserName(savedUser.getUserName());
-                response.setPassword(savedUser.getPassword());
-            } else {
-                UserErrorResponse error = UserErrorResponse.builder()
-                        .errorCode("404")
-                        .errorMessage("User not found with ID: " + userId)
-                        .build();
-                response.setError(error);
-            }
-        } catch (AccessDeniedException e) {
-            UserErrorResponse error = UserErrorResponse.builder()
-                    .errorMessage(e.getMessage())
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+
+            updateIfPresent(userDto.getUserName(), existingUser::setUserName);
+            updateIfPresent(userDto.getPassword(), existingUser::setPassword);
+
+            User savedUser = userRepository.save(existingUser);
+
+            return UserResponse.builder()
+                    .id(savedUser.getId())
+                    .userName(savedUser.getUserName())
                     .build();
-            response.setError(error);
+        } else {
+            throw new UserNotFoundException("User not found with ID: " + userId);
         }
-        return response;
+    }
+
+    private void updateIfPresent(String newValue, Consumer<String> updater) {
+        if (Objects.nonNull(newValue) && !newValue.isEmpty()) {
+            updater.accept(newValue);
+        }
     }
 
     @Override
