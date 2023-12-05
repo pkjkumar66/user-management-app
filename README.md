@@ -193,6 +193,10 @@ curl --location --request DELETE 'http://localhost:8080/api/v1/users/delete/1' \
 ## Configuration
 
 - Spring Security Configuration for basic authentication.
+  - we have used plan-text as our password for this assignment however we can use different algo like BCrypt..
+  - we will store password in `my_user` table by salting it, like 
+    - salt: generate a random string
+    - use any encryption algorithm and do h(password + salt), then store that password along with salt
 - Custom UserDetailsService to load user data from the database.
 - Global exception handling for various scenarios.
 - Integration tests using MockMvc for different endpoints.
