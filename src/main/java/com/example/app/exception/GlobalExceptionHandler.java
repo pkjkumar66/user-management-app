@@ -1,8 +1,5 @@
-package com.example.app.controller;
+package com.example.app.exception;
 
-import com.example.app.exception.AccessDeniedException;
-import com.example.app.exception.ResourceNotFoundException;
-import com.example.app.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
