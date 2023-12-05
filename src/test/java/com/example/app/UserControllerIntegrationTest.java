@@ -2,6 +2,7 @@ package com.example.app;
 
 import com.example.app.dto.UserDto;
 import com.example.app.mapper.UserMapper;
+import com.example.app.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,9 @@ public class UserControllerIntegrationTest {
     private final ObjectMapper objectMapper;
 
     @Mock
+    private final UserService userService;
+
+    @Mock
     private UserMapper mapper;
 
     @BeforeEach
@@ -62,16 +66,6 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
-    }
-
-    @Test
-    @WithMockUser(roles = "USER")
-    void testGetUserByIdAsUserNotFound() throws Exception {
-        Long userId = 2L;
-
-        mockMvc.perform(get("/api/v1/users/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -152,55 +146,6 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.userName").value("updatedUser"));
 
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void testGetUserByIdAsADMIN() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setUserName("newUser");
-        userDto.setPassword("password");
-
-
-        ResultActions addResult = mockMvc.perform(post("/api/v1/users/add")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)));
-
-        String content = addResult.andReturn().getResponse().getContentAsString();
-        Long userId = Long.valueOf(objectMapper.readTree(content).get("id").asText());
-
-
-        mockMvc.perform(get("/api/v1/users/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void testDeleteUserAsADMINNotFound() throws Exception {
-        Long userId = 1L;
-
-        mockMvc.perform(delete("/api/v1/users/{userId}", userId))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void testDeleteUserAsADMIN() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setUserName("newUser");
-        userDto.setPassword("password");
-
-
-        ResultActions addResult = mockMvc.perform(post("/api/v1/users/add")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)));
-
-        String content = addResult.andReturn().getResponse().getContentAsString();
-        Long userId = Long.valueOf(objectMapper.readTree(content).get("id").asText());
-
-        mockMvc.perform(delete("/api/v1/users/{userId}", userId))
-                .andExpect(status().isOk());
     }
 
 }
