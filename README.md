@@ -133,7 +133,7 @@ Do authentication and authorization before using any APIs.
 ### Add user
 
 ```bash
-curl --location 'http://localhost:8080/api/users' \
+curl --location 'http://localhost:8080/api/v1/users/add' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Basic YWRtaW46dGVzdDEyMw==' \
 --header 'Cookie: JSESSIONID=0F22F030927774A7A84EA74753482213' \
@@ -146,7 +146,7 @@ curl --location 'http://localhost:8080/api/users' \
 ### Update existing user
 
 ```bash
-curl --location --request PUT 'localhost:8080/api/users/1' \
+curl --location --request PUT 'localhost:8080/api/v1/users/update/1' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Basic YWRtaW46dGVzdDEyMw==' \
 --header 'Cookie: JSESSIONID=0F22F030927774A7A84EA74753482213' \
@@ -159,7 +159,7 @@ curl --location --request PUT 'localhost:8080/api/users/1' \
 ### Get All the users
 
 ```bash
-curl --location 'http://localhost:8080/api/users' \
+curl --location 'http://localhost:8080/api/v1/users/all' \
 --header 'Authorization: Basic YWRtaW46dGVzdDEyMw==' \
 --header 'Cookie: JSESSIONID=0F22F030927774A7A84EA74753482213'
 ```
@@ -167,7 +167,7 @@ curl --location 'http://localhost:8080/api/users' \
 ### Get User by userId
 
 ```bash
-curl --location 'http://localhost:8080/api/users/1' \
+curl --location 'http://localhost:8080/api/v1/users/1' \
 --header 'Authorization: Basic YWRtaW46dGVzdDEyMw==' \
 --header 'Cookie: JSESSIONID=0F22F030927774A7A84EA74753482213'
 ```
@@ -175,7 +175,7 @@ curl --location 'http://localhost:8080/api/users/1' \
 ### Delete User by userId
 
 ```bash
-curl --location --request DELETE 'http://localhost:8080/api/users/1' \
+curl --location --request DELETE 'http://localhost:8080/api/v1/users/delete/1' \
 --header 'Authorization: Basic YWRtaW46dGVzdDEyMw==' \
 --header 'Cookie: JSESSIONID=0F22F030927774A7A84EA74753482213'
 ```
