@@ -44,11 +44,11 @@ public class ResourceSecurityConfig {
 
         http.authorizeHttpRequests(configurer ->
                 configurer
-                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, "/api/users").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/all").hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/add").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/update/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/delete/**").hasRole("ADMIN")
         );
 
         // use HTTP Basic authentication

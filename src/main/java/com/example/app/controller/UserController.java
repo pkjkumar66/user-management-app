@@ -3,6 +3,7 @@ package com.example.app.controller;
 import com.example.app.dto.UserDto;
 import com.example.app.dto.UserResponse;
 import com.example.app.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserController {
 
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     // Get all users
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
@@ -41,19 +38,19 @@ public class UserController {
     }
 
     // Create a new user
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<UserResponse> createUser(@RequestBody UserDto user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(user));
     }
 
     // Update an existing user
-    @PutMapping("/{userId}")
+    @PutMapping("/update/{userId}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId, @RequestBody UserDto user) {
         return ResponseEntity.ok(userService.updateUser(userId, user));
     }
 
     // Delete a user
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/delete/{userId}")
     public ResponseEntity<UserResponse> deleteUser(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.deleteUserById(userId));
     }
