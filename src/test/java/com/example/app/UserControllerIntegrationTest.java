@@ -1,9 +1,11 @@
 package com.example.app;
 
+import com.example.app.dto.UserDto;
 import com.example.app.dto.UserResponse;
 import com.example.app.entity.User;
 import com.example.app.exception.ResourceNotFoundException;
 import com.example.app.service.UserService;
+import com.example.app.util.PasswordUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -35,6 +38,9 @@ public class UserControllerIntegrationTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserControllerIntegrationTest(MockMvc mockMvc, ObjectMapper objectMapper) {
@@ -67,13 +73,14 @@ public class UserControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "EMPLOYEE")
     public void testAddUserAsEmployeeUnauthorized() throws Exception {
-        User newUser = new User();
-        newUser.setUserName("newUser");
-        newUser.setPassword("password");
+        UserDto newUserDto = UserDto.builder()
+                .userName("newUser")
+                .password("password")
+                .build();
 
         ResultActions resultActions = mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newUser)));
+                .content(objectMapper.writeValueAsString(newUserDto)));
 
         resultActions.andExpect(status().isForbidden());
     }
@@ -81,14 +88,14 @@ public class UserControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "EMPLOYEE")
     public void testUpdateUserAsEmployeeUnauthorized() throws Exception {
-        User updatedUser = new User();
-        updatedUser.setUserName("updatedUser");
-        updatedUser.setPassword("password");
-
+        UserDto updatedUserDto = UserDto.builder()
+                .userName("updatedUser")
+                .password("password")
+                .build();
 
         ResultActions resultActions = mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedUser)));
+                .content(objectMapper.writeValueAsString(updatedUserDto)));
 
         resultActions.andExpect(status().isForbidden());
     }
@@ -96,13 +103,14 @@ public class UserControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "MANAGER")
     public void testAddUserAsManager() throws Exception {
-        User newUser = new User();
-        newUser.setUserName("newUser");
-        newUser.setPassword("password");
+        UserDto userDto = UserDto.builder()
+                .userName("newUser")
+                .password("password")
+                .build();
 
         ResultActions resultActions = mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newUser)));
+                .content(objectMapper.writeValueAsString(userDto)));
 
         resultActions.andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -112,14 +120,14 @@ public class UserControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "MANAGER")
     public void testUpdateUserAsManager() throws Exception {
-        User updatedUser = new User();
-        updatedUser.setUserName("updatedUser");
-        updatedUser.setPassword("password");
-
+        UserDto userDto = UserDto.builder()
+                .userName("updatedUser")
+                .password("password")
+                .build();
 
         ResultActions resultActions = mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedUser)));
+                .content(objectMapper.writeValueAsString(userDto)));
 
         resultActions.andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
