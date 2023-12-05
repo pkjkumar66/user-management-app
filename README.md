@@ -2,11 +2,6 @@
 
 This is a sample Spring Boot application for user management, including CRUD operations on the User entity. It incorporates Spring Data JPA for data persistence and Spring Security for basic authentication. The application also includes integration tests using MockMvc.
 
-```bash
-- step by step done in the below repo
--  I was facing some compilation issue while running through cmd line that's why created a new project using below repo; java21 was not compactible with maven 3.2.0
-```
-- [assignment solution](https://github.com/pkjkumar66/techolution-app) as task number given in the assignment
 
 ## Table of Contents
 
@@ -31,7 +26,7 @@ This is a sample Spring Boot application for user management, including CRUD ope
 
 ### Installation
 
-#### Option 1: Maven
+#### Option 1: JAR File
 
 1. Clone the repository:
 
@@ -45,33 +40,19 @@ This is a sample Spring Boot application for user management, including CRUD ope
     cd user-management-app
     ```
 
-3. Build the project:
-
-    ```bash
-    mvn clean install
-    ```
-
-4. Run the application:
-
-    ```bash
-    mvn spring-boot:run
-    ```
-
-#### Option 2: JAR File
-
-1. Create JAR file:
+3. Create JAR file:
 
     ```bash
     ./mvnw package
     ```
 
-2. Run the application:
+4. Run the application:
 
     ```bash
     java -jar target/app-0.0.1-SNAPSHOT.jar
     ```
 
-#### Option 3: Docker
+#### Option 2: Docker
 
 Download Docker from [Docker website](https://www.docker.com/products/docker-desktop/).
 
