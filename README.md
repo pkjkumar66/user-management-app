@@ -114,10 +114,9 @@ Explore and test the APIs using the provided Postman collection.
 [Postman Collection](https://documenter.getpostman.com/view/25669291/2s9YeLWoU9)
 
 ### User Roles: Authentication and Authorization
-The application defines three user roles: EMPLOYEE, MANAGER, and ADMIN. Each role has specific permissions to access different API endpoints.
+The application defines three user roles: USER and ADMIN. Each role has specific permissions to access different API endpoints.
 
-- EMPLOYEE: Read-only access to user-related endpoints.
-- MANAGER: Read and write access to user-related endpoints.
+- USER: Read-only access to user-related endpoints.
 - ADMIN: Full access to user-related endpoints.
 
 Do authentication and authorization before using any APIs.

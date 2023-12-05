@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getAllUsers() {
-        checkAuthorizationForRole("EMPLOYEE","MANAGER", "ADMIN");
+        checkAuthorizationForRole("USER", "ADMIN");
         List<User> users = userRepository.findAll();
         return users.stream()
                 .filter(Objects::nonNull)
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long userId) {
-        checkAuthorizationForRole("EMPLOYEE","MANAGER", "ADMIN");
+        checkAuthorizationForRole("USER", "ADMIN");
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse addUser(UserDto userDto) {
-        checkAuthorizationForRole("MANAGER", "ADMIN");
+        checkAuthorizationForRole("ADMIN");
         validateUserDto(userDto);
 
         User user = userMapper.userDtoToUser(userDto);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserResponse updateUser(Long userId, UserDto userDto) {
-        checkAuthorizationForRole("MANAGER", "ADMIN");
+        checkAuthorizationForRole("ADMIN");
         Assert.notNull(userDto, "userDto can't be null");
 
         Optional<User> optionalUser = userRepository.findById(userId);

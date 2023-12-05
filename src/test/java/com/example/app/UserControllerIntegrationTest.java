@@ -57,15 +57,15 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "EMPLOYEE")
-    public void testAuthenticatedEmployeeAccess() throws Exception {
+    @WithMockUser(roles = "USER")
+    public void testAuthenticatedUSERAccess() throws Exception {
         mockMvc.perform(get("/api/v1/users/all"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(roles = "EMPLOYEE")
-    public void testGetAllUsersAsEmployee() throws Exception {
+    @WithMockUser(roles = "USER")
+    public void testGetAllUsersAsUSER() throws Exception {
         mockMvc.perform(get("/api/v1/users/all"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -73,8 +73,8 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "EMPLOYEE")
-    public void testAddUserAsEmployeeUnauthorized() throws Exception {
+    @WithMockUser(roles = "USER")
+    public void testAddUserAsUSERUnauthorized() throws Exception {
         User newUser = new User();
         newUser.setUserName("newUser");
         newUser.setPassword("password");
@@ -87,8 +87,8 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "EMPLOYEE")
-    public void testUpdateUserAsEmployeeUnauthorized() throws Exception {
+    @WithMockUser(roles = "USER")
+    public void testUpdateUserAsUSERUnauthorized() throws Exception {
         User updatedUser = new User();
         updatedUser.setUserName("updatedUser");
         updatedUser.setPassword("password");
@@ -102,8 +102,8 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "MANAGER")
-    public void testAddUserAsManager() throws Exception {
+    @WithMockUser(roles = "ADMIN")
+    public void testAddUserAsADMIN() throws Exception {
         User newUser = new User();
         newUser.setUserName("newUser");
         newUser.setPassword("password");
@@ -118,8 +118,8 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "MANAGER")
-    public void testUpdateUserAsManager() throws Exception {
+    @WithMockUser(roles = "ADMIN")
+    public void testUpdateUserAsADMIN() throws Exception {
         Long userId = 1L;
 
         when(userService.getUserById(userId)).thenReturn(UserResponse.builder().id(userId).build());
@@ -128,7 +128,7 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "EMPLOYEE")
+    @WithMockUser(roles = "USER")
     void testGetUserByIdNotFound() throws Exception {
         Long userId = 2L;
 
@@ -140,8 +140,8 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "EMPLOYEE")
-    public void testDeleteUserAsEmployeeUnauthorized() throws Exception {
+    @WithMockUser(roles = "USER")
+    public void testDeleteUserAsUSERUnauthorized() throws Exception {
         Long userId = 1L;
 
         mockMvc.perform(delete("/api/v1/users/{userId}", userId))
@@ -149,8 +149,8 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "MANAGER")
-    public void testDeleteUserAsManagerUnauthorized() throws Exception {
+    @WithMockUser(roles = "ADMIN")
+    public void testDeleteUserAsADMINUnauthorized() throws Exception {
         Long userId = 1L;
 
         mockMvc.perform(delete("/api/v1/users/{userId}", userId))

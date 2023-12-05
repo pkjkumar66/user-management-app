@@ -18,25 +18,19 @@ public class ResourceSecurityConfig {
     @Bean
     public InMemoryUserDetailsManager UserDetailsService() {
 
-        UserDetails pankaj = User.builder()
-                .username("pankaj")
-                .password("{noop}test123")
-                .roles("EMPLOYEE")
-                .build();
-
-        UserDetails sharad = User.builder()
-                .username("sharad")
-                .password("{noop}test123")
-                .roles("EMPLOYEE", "MANAGER")
+        UserDetails user = User.builder()
+                .username("user")
+                .password("{bcrypt}$2a$10$PLaRbuq6K8pE0PXbZ6DciePX6G67Rs8p5ElprGDD1yq2X4cdbZa5i")
+                .roles("USER")
                 .build();
 
         UserDetails admin = User.builder()
                 .username("admin")
-                .password("{noop}test123")
-                .roles("EMPLOYEE", "MANAGER", "ADMIN")
+                .password("{bcrypt}$2a$10$PLaRbuq6K8pE0PXbZ6DciePX6G67Rs8p5ElprGDD1yq2X4cdbZa5i")
+                .roles("USER", "ADMIN")
                 .build();
 
-        return new InMemoryUserDetailsManager(pankaj, sharad, admin);
+        return new InMemoryUserDetailsManager(user, admin);
     }
 
     @Bean
@@ -44,10 +38,10 @@ public class ResourceSecurityConfig {
 
         http.authorizeHttpRequests(configurer ->
                 configurer
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/all").hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users/add").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/update/**").hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/all").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/add").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/update/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/users/delete/**").hasRole("ADMIN")
         );
 
