@@ -8,6 +8,7 @@ import com.example.app.exception.UserNotFoundException;
 import com.example.app.mapper.UserMapper;
 import com.example.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService {
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getAllUsers() {
         checkAuthorizationForRole("USER", "ADMIN");
+        log.info("Fetching all users.");
         List<User> users = userRepository.findAll();
         return users.stream()
                 .filter(Objects::nonNull)
@@ -43,6 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserById(Long userId) {
         checkAuthorizationForRole("USER", "ADMIN");
+        log.info("Fetching user by ID: {}", userId);
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
@@ -55,6 +59,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse addUser(UserDto userDto) {
         checkAuthorizationForRole("ADMIN");
+        log.info("Adding a new user: {}", userDto.getUserName());
         validateUserDto(userDto);
 
         User user = userMapper.userDtoToUser(userDto);
@@ -77,6 +82,8 @@ public class UserServiceImpl implements UserService {
         checkAuthorizationForRole("ADMIN");
         Assert.notNull(userDto, "userDto can't be null");
 
+        log.info("Updating user with ID: {}", userId);
+
         Optional<User> optionalUser = userRepository.findById(userId);
 
         if (optionalUser.isPresent()) {
@@ -86,12 +93,14 @@ public class UserServiceImpl implements UserService {
             updateIfPresent(userDto.getPassword(), existingUser::setPassword);
 
             User savedUser = userRepository.save(existingUser);
+            log.info("User with ID {} updated successfully", userId);
 
             return UserResponse.builder()
                     .id(savedUser.getId())
                     .userName(savedUser.getUserName())
                     .build();
         } else {
+            log.error("User not found with ID: {}", userId);
             throw new UserNotFoundException("User not found with ID: " + userId);
         }
     }
@@ -106,11 +115,14 @@ public class UserServiceImpl implements UserService {
     public UserResponse deleteUserById(Long userId) {
         checkAuthorizationForRole("ADMIN");
         Optional<User> userOptional = userRepository.findById(userId);
+        log.info("Deleting user with ID: {}", userId);
 
         if (userOptional.isPresent()) {
             userRepository.deleteById(userId);
+            log.info("User with ID {} deleted successfully", userId);
             return UserResponse.builder().id(userId).build();
         } else {
+            log.error("User not found with ID: {}", userId);
             throw new UserNotFoundException("User not found with id: " + userId);
         }
     }
@@ -123,6 +135,7 @@ public class UserServiceImpl implements UserService {
                 return;
             }
         }
+        log.warn("Access denied. User does not have the required role.");
         throw new AccessDeniedException("Access denied. User does not have the required role.");
     }
 }
