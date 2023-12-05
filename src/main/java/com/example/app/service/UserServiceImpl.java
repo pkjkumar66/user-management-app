@@ -5,6 +5,7 @@ import com.example.app.dto.UserErrorResponse;
 import com.example.app.dto.UserResponse;
 import com.example.app.entity.User;
 import com.example.app.exception.AccessDeniedException;
+import com.example.app.exception.UserNotFoundException;
 import com.example.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,34 +28,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
-        List<UserResponse> response = users.stream()
+        return users.stream()
+                .filter(Objects::nonNull)
                 .map(user -> UserResponse.builder()
                         .id(user.getId())
                         .userName(user.getUserName())
-                        .password(user.getPassword())
                         .build())
                 .collect(Collectors.toList());
-        return response;
     }
 
     @Override
     public UserResponse getUserById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        UserResponse response = UserResponse.builder().build();
-        if (user.isPresent()) {
-            User existingUser = user.get();
-            response.setId(existingUser.getId());
-            response.setUserName(existingUser.getUserName());
-            response.setPassword(existingUser.getPassword());
-        } else {
-            UserErrorResponse error = UserErrorResponse.builder()
-                    .errorCode("404")
-                    .errorMessage("User not found with ID: " + userId)
-                    .build();
-            response.setError(error);
-        }
-        return response;
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
+        return UserResponse.builder()
+                .id(existingUser.getId())
+                .userName(existingUser.getUserName())
+                .build();
     }
 
     @Override
@@ -118,27 +109,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse deleteUserById(Long userId) {
-        UserResponse response = UserResponse.builder().build();
-        try {
-            checkAuthorizationForRole("ADMIN");
-            Optional<User> user = userRepository.findById(userId);
-            if (user.isPresent()) {
-                userRepository.deleteById(userId);
-            } else {
-                UserErrorResponse error = UserErrorResponse.builder()
-                        .errorCode("404")
-                        .errorMessage("User not found with ID: " + userId)
-                        .build();
-                response.setError(error);
-            }
-        } catch (AccessDeniedException e) {
-            UserErrorResponse error = UserErrorResponse.builder()
-                    .errorMessage(e.getMessage())
-                    .build();
-            response.setError(error);
-        }
+        checkAuthorizationForRole("ADMIN");
+        Optional<User> userOptional = userRepository.findById(userId);
 
-        return response;
+        if (userOptional.isPresent()) {
+            userRepository.deleteById(userId);
+            return UserResponse.builder().id(userId).build();
+        } else {
+            throw new UserNotFoundException("User not found with id: " + userId);
+        }
     }
 
     private void checkAuthorizationForRole(String... allowedRoles) {
