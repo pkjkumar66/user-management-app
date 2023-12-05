@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getAllUsers() {
-        checkAuthorizationForRole("EMPLOYEE", "MANAGER", "ADMIN");
+        checkAuthorizationForRole("EMPLOYEE","MANAGER", "ADMIN");
         List<User> users = userRepository.findAll();
         return users.stream()
                 .filter(Objects::nonNull)
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long userId) {
-        checkAuthorizationForRole("EMPLOYEE", "MANAGER", "ADMIN");
+        checkAuthorizationForRole("EMPLOYEE","MANAGER", "ADMIN");
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
