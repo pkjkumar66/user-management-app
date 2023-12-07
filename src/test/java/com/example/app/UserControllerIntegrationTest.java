@@ -1,8 +1,9 @@
 package com.example.app;
 
 import com.example.app.dto.UserDto;
+import com.example.app.dto.UserResponse;
 import com.example.app.mapper.UserMapper;
-import com.example.app.service.UserService;
+import com.example.app.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,17 +31,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserControllerIntegrationTest {
-
     private final MockMvc mockMvc;
 
     private final ObjectMapper objectMapper;
 
     @Mock
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @Mock
     private UserMapper mapper;
@@ -148,4 +154,75 @@ public class UserControllerIntegrationTest {
 
     }
 
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testGetUserByIdAsADMIN() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setUserName("newUser");
+        userDto.setPassword("password");
+        Long userId = 1L;
+
+        // save user in the context
+        ResultActions addUser = mockMvc.perform(post("/api/v1/users/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userDto)));
+        addUser.andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").exists());
+
+        // get user from the context
+        mockMvc.perform(get("/api/v1/users/{userId}", userId)
+                        .with(user("admin").roles("ADMIN"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(userDto)))
+                .andReturn();
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testDeleteUserAsADMINNotFound() throws Exception {
+        Long userId = 1L;
+        when(userService.deleteUserById(userId)).thenReturn(any(UserResponse.class));
+
+        mockMvc.perform(delete("/api/v1/users/{userId}", userId))
+                .andExpect(status().isNotFound());
+
+        verify(userService, times(1)).deleteUserById(userId);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testDeleteUserAsADMIN() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setUserName("newUser");
+        userDto.setPassword("password");
+        Long userId = 1L;
+
+        // save user in the context
+        ResultActions addUser = mockMvc.perform(post("/api/v1/users/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userDto)));
+        addUser.andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").exists());
+
+        // delete user from the context
+        mockMvc.perform(delete("/api/v1/users/{userId}", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetUserByIdAsUserNotFound() throws Exception {
+        Long userId = 2L;
+        when(userService.getUserById(userId)).thenReturn(null);
+
+        mockMvc.perform(get("/api/v1/users/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(userService, times(1)).getUserById(userId);
+    }
 }
