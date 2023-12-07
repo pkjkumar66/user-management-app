@@ -41,8 +41,9 @@ public class UserServiceImplTest {
         MockitoAnnotations.initMocks(this);
 
         // Mocking the authentication context
-        Authentication authentication = new UsernamePasswordAuthenticationToken("admin", "test123",
-                Collections.singleton((GrantedAuthority) () -> "ROLE_ADMIN"));
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(TestHelper.USER_ADMIN, TestHelper.USER_ADMIN_PASSWORD,
+                        Collections.singleton((GrantedAuthority) () -> TestHelper.ROLE_ADMIN));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
     }
@@ -73,7 +74,8 @@ public class UserServiceImplTest {
     @Test
     void testGetUserById() {
         // Mocking userRepository behavior
-        when(userRepository.findById(TestHelper.USER_ID)).thenReturn(Optional.of(new User(TestHelper.USER_NAME, TestHelper.PASSWORD)));
+        when(userRepository.findById(TestHelper.USER_ID))
+                .thenReturn(Optional.of(new User(TestHelper.USER_NAME, TestHelper.PASSWORD)));
 
         // Testing the getUserById method
         assertNotNull(userService.getUserById(TestHelper.USER_ID));

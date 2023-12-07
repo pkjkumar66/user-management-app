@@ -9,6 +9,10 @@ import com.example.app.entity.User;
  */
 public class TestHelper {
 
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String USER_ADMIN = "admin";
+    public static final String USER_ADMIN_PASSWORD = "test123";
+
     public static final Long USER_ID = 1L;
     public static final String USER_NAME = "user";
     public static final String PASSWORD = "password";
