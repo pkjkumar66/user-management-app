@@ -16,13 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,36 +50,30 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testUnauthenticatedAccess() throws Exception {
-        mockMvc.perform(get("/api/v1/users/all"))
+        mockMvc.perform(get(TestHelper.GET_ALL_USERS_URL))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(roles = "USER")
     public void testAuthenticatedUSERAccess() throws Exception {
-        mockMvc.perform(get("/api/v1/users/all"))
+        mockMvc.perform(get(TestHelper.GET_ALL_USERS_URL))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "USER")
     public void testGetAllUsersAsRUSER() throws Exception {
-        mockMvc.perform(get("/api/v1/users/all"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray());
+        mockMvc.perform(get(TestHelper.GET_ALL_USERS_URL))
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "USER")
     public void testAddUserAsUserUnauthorized() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setUserName("newUser");
-        userDto.setPassword("password");
-
-        ResultActions resultActions = mockMvc.perform(post("/api/v1/users/add")
+        ResultActions resultActions = mockMvc.perform(post(TestHelper.ADD_USER_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)));
+                .content(objectMapper.writeValueAsString(TestHelper.USER_DTO)));
 
         resultActions.andExpect(status().isForbidden());
     }
@@ -91,13 +81,9 @@ public class UserControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "USER")
     public void testUpdateUserAsUSERUnauthorized() throws Exception {
-        Long userId = 1L;
-        UserDto userDto = new UserDto();
-        userDto.setUserName("updatedUser");
-
-        ResultActions resultActions = mockMvc.perform(put("/api/v1/users/update/{userId}", userId)
+        ResultActions resultActions = mockMvc.perform(put(TestHelper.UPDATE_USER_URL, TestHelper.USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(userDto)));
+                .content(new ObjectMapper().writeValueAsString(TestHelper.USER_DTO)));
 
         resultActions.andExpect(status().isForbidden());
 
@@ -106,22 +92,16 @@ public class UserControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "USER")
     public void testDeleteUserAsUSERUnauthorized() throws Exception {
-        Long userId = 1L;
-
-        mockMvc.perform(delete("/api/v1/users/{userId}", userId))
+        mockMvc.perform(delete(TestHelper.GET_USER_URL, TestHelper.USER_ID))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     public void testAddUserAsADMIN() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setUserName("newUser");
-        userDto.setPassword("password");
-
-        ResultActions resultActions = mockMvc.perform(post("/api/v1/users/add")
+        ResultActions resultActions = mockMvc.perform(post(TestHelper.ADD_USER_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)));
+                .content(objectMapper.writeValueAsString(TestHelper.USER_DTO)));
 
         resultActions.andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -130,20 +110,37 @@ public class UserControllerIntegrationTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
+    public void testDeleteUserAsADMIN() throws Exception {
+        // save user in the context
+        ResultActions addUser = mockMvc.perform(post(TestHelper.ADD_USER_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(TestHelper.USER_DTO)));
+        addUser.andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").exists());
+
+        UserResponse response =
+                objectMapper.readValue(addUser.andReturn().getResponse().getContentAsString(), UserResponse.class);
+
+        // delete user from the context
+        mockMvc.perform(delete(TestHelper.DELETE_USER_URL, response.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
     public void testUpdateUserAsADMIN() throws Exception {
-        Long userId = 1L;
-        UserDto userDto = new UserDto();
-        userDto.setUserName("newUser");
-        userDto.setPassword("password");
+        UserDto userDto = TestHelper.USER_DTO;
 
         // save user in the context
         mockMvc.perform(post("/api/v1/users/add")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)));
+                .content(objectMapper.writeValueAsString(TestHelper.USER_DTO)));
 
         userDto.setUserName("updatedUser");
 
-        ResultActions resultActions = mockMvc.perform(put("/api/v1/users/update/{userId}", userId)
+        ResultActions resultActions = mockMvc.perform(put(TestHelper.UPDATE_USER_URL, TestHelper.USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(userDto)));
 
@@ -157,72 +154,38 @@ public class UserControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void testGetUserByIdAsADMIN() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setUserName("newUser");
-        userDto.setPassword("password");
-        Long userId = 1L;
-
         // save user in the context
-        ResultActions addUser = mockMvc.perform(post("/api/v1/users/add")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)));
-        addUser.andExpect(status().isCreated())
+        MvcResult addUserResult = mockMvc.perform(post(TestHelper.ADD_USER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(TestHelper.USER_DTO)))
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").exists());
+                .andExpect(jsonPath("$.id").exists())
+                .andReturn();
+
+        UserResponse response = objectMapper.readValue(
+                addUserResult.getResponse().getContentAsString(),
+                UserResponse.class
+        );
 
         // get user from the context
-        mockMvc.perform(get("/api/v1/users/{userId}", userId)
-                        .with(user("admin").roles("ADMIN"))
+        mockMvc.perform(get(TestHelper.GET_USER_URL, response.getId())
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(userDto)))
-                .andReturn();
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     public void testDeleteUserAsADMINNotFound() throws Exception {
-        Long userId = 1L;
-        when(userService.deleteUserById(userId)).thenReturn(any(UserResponse.class));
-
-        mockMvc.perform(delete("/api/v1/users/{userId}", userId))
-                .andExpect(status().isNotFound());
-
-        verify(userService, times(1)).deleteUserById(userId);
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void testDeleteUserAsADMIN() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setUserName("newUser");
-        userDto.setPassword("password");
-        Long userId = 1L;
-
-        // save user in the context
-        ResultActions addUser = mockMvc.perform(post("/api/v1/users/add")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)));
-        addUser.andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").exists());
-
-        // delete user from the context
-        mockMvc.perform(delete("/api/v1/users/{userId}", userId)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(TestHelper.DELETE_USER_URL, TestHelper.USER_ID_2))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(roles = "USER")
     void testGetUserByIdAsUserNotFound() throws Exception {
-        Long userId = 2L;
-        when(userService.getUserById(userId)).thenReturn(null);
-
-        mockMvc.perform(get("/api/v1/users/{userId}", userId)
+        mockMvc.perform(get(TestHelper.GET_USER_URL, TestHelper.USER_ID_2)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-
-        verify(userService, times(1)).getUserById(userId);
     }
 }

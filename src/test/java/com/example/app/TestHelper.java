@@ -9,11 +9,12 @@ import com.example.app.entity.User;
  */
 public class TestHelper {
 
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String ROLE_ADMIN = "ADMIN";
     public static final String USER_ADMIN = "admin";
     public static final String USER_ADMIN_PASSWORD = "test123";
 
     public static final Long USER_ID = 1L;
+    public static final Long USER_ID_2 = 1L;
     public static final String USER_NAME = "user";
     public static final String PASSWORD = "password";
     public static final String UPDATED_USER_NAME = "updated_user";
@@ -34,4 +35,10 @@ public class TestHelper {
             .id(USER_ID)
             .userName(USER_NAME)
             .build();
+
+    public static final String GET_ALL_USERS_URL = "/api/v1/users/all";
+    public static final String GET_USER_URL = "/api/v1/users/{userId}";
+    public static final String ADD_USER_URL = "/api/v1/users/add";
+    public static final String UPDATE_USER_URL = "/api/v1/users/update/{userId}";
+    public static final String DELETE_USER_URL = "/api/v1/users/delete/{userId}";
 }
