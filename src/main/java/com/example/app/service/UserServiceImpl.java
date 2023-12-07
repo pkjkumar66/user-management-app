@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
         return UserResponse.builder()
-                .id(existingUser.getId())
+                .id(userId)
                 .userName(existingUser.getUserName())
                 .build();
     }
