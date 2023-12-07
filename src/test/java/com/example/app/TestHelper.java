@@ -9,7 +9,7 @@ import com.example.app.entity.User;
  */
 public class TestHelper {
 
-    public static final String ROLE_ADMIN = "ADMIN";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String USER_ADMIN = "admin";
     public static final String USER_ADMIN_PASSWORD = "test123";
 
